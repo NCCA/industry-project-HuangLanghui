@@ -1,0 +1,74 @@
+[
+  {
+    "split": "test",
+    "local_index": 0,
+    "nyu_index": 1118,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0000_nyu1118_input.ply",
+      "prediction": "outputs\\exports\\test_local0000_nyu1118_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0000_nyu1118_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0000_nyu1118_error_tp_fp_fn.ply"
+    }
+  },
+  {
+    "split": "test",
+    "local_index": 1,
+    "nyu_index": 560,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0001_nyu0560_input.ply",
+      "prediction": "outputs\\exports\\test_local0001_nyu0560_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0001_nyu0560_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0001_nyu0560_error_tp_fp_fn.ply"
+    }
+  },
+  {
+    "split": "test",
+    "local_index": 2,
+    "nyu_index": 499,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0002_nyu0499_input.ply",
+      "prediction": "outputs\\exports\\test_local0002_nyu0499_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0002_nyu0499_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0002_nyu0499_error_tp_fp_fn.ply"
+    }
+  },
+  {
+    "split": "test",
+    "local_index": 3,
+    "nyu_index": 323,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0003_nyu0323_input.ply",
+      "prediction": "outputs\\exports\\test_local0003_nyu0323_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0003_nyu0323_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0003_nyu0323_error_tp_fp_fn.ply"
+    }
+  },
+  {
+    "split": "test",
+    "local_index": 4,
+    "nyu_index": 93,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0004_nyu0093_input.ply",
+      "prediction": "outputs\\exports\\test_local0004_nyu0093_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0004_nyu0093_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0004_nyu0093_error_tp_fp_fn.ply"
+    }
+  },
+  {
+    "split": "test",
+    "local_index": 5,
+    "nyu_index": 862,
+    "threshold": 0.5,
+    "files": {
+      "input": "outputs\\exports\\test_local0005_nyu0862_input.ply",
+      "prediction": "outputs\\exports\\test_local0005_nyu0862_prediction.ply",
+      "target_proxy": "outputs\\exports\\test_local0005_nyu0862_target_proxy.ply",
+      "error_tp_fp_fn": "outputs\\exports\\test_local0005_nyu0862_error_tp_fp_fn.ply"
+    }
+  }
+]

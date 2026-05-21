@@ -1,0 +1,54 @@
+data:
+  mat_path: data/nyu_depth_v2_labeled.mat
+  cache_dir: data/cache_64
+  target_key: depths
+  input_key: rawDepths
+  max_samples: 400
+  train_ratio: 0.8
+  val_ratio: 0.1
+  seed: 42
+  pixel_stride: 2
+  depth_min_m: 0.4
+  depth_max_m: 8.0
+  grid_size:
+  - 64
+  - 64
+  - 64
+  bounds:
+    x:
+    - -3.2
+    - 3.2
+    y:
+    - -2.4
+    - 2.4
+    z:
+    - 0.4
+    - 8.0
+  intrinsics:
+    fx: 518.8579011745019
+    fy: 519.4696111212749
+    cx: 325.58244941119034
+    cy: 253.73616633400465
+  dilate_iterations: 1
+  input_voxel_dropout: 0.05
+  cuboid_masks: 1
+  cuboid_min_size: 5
+  cuboid_max_size: 14
+model:
+  base_channels: 8
+  use_attention: false
+training:
+  batch_size: 2
+  epochs: 4
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+  num_workers: 2
+  bce_weight: 1.0
+  dice_weight: 0.5
+  pos_weight: 8.0
+  threshold: 0.5
+  device: auto
+  save_dir: outputs/experiments/no_attention/checkpoints
+outputs:
+  metrics_dir: outputs/experiments/no_attention/metrics
+  vis_dir: outputs/experiments/no_attention/visualizations

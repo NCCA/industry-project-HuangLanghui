@@ -1,0 +1,55 @@
+# Default coursework configuration.
+# This project intentionally does not generate dummy data.
+# Download nyu_depth_v2_labeled.mat from the official NYUv2 page and put it at data/nyu_depth_v2_labeled.mat.
+
+data:
+  mat_path: data/nyu_depth_v2_labeled.mat
+  cache_dir: data/cache_64
+  target_key: depths       # in-painted NYUv2 depth maps, used as proxy completion target
+  input_key: rawDepths     # raw NYUv2 depth maps, used as incomplete input
+  max_samples: 1400         # increase after verifying the pipeline
+  train_ratio: 0.80
+  val_ratio: 0.10
+  seed: 42
+  pixel_stride: 2
+  depth_min_m: 0.4
+  depth_max_m: 8.0
+  grid_size: [64, 64, 64]  # [D, H, W] == [z, y, x]
+  bounds:
+    x: [-3.2, 3.2]
+    y: [-2.4, 2.4]
+    z: [0.4, 8.0]
+  intrinsics:
+    # RGB camera intrinsics commonly used for NYUv2 aligned depth maps.
+    fx: 518.8579011745019
+    fy: 519.4696111212749
+    cx: 325.58244941119034
+    cy: 253.73616633400465
+  dilate_iterations: 1
+  # Augmentation masks remove some real observed occupancy from the input only.
+  # Target still comes from real NYUv2 depth. Set both to zero for no input masking.
+  input_voxel_dropout: 0.05
+  cuboid_masks: 1
+  cuboid_min_size: 5
+  cuboid_max_size: 14
+
+model:
+  base_channels: 8
+  use_attention: true
+
+training:
+  batch_size: 4
+  epochs: 20
+  learning_rate: 0.001
+  weight_decay: 0.00001
+  num_workers: 2
+  bce_weight: 1.0
+  dice_weight: 0.5
+  pos_weight: 8.0
+  threshold: 0.5
+  device: auto
+  save_dir: outputs/checkpoints
+
+outputs:
+  metrics_dir: outputs/metrics
+  vis_dir: outputs/visualizations
