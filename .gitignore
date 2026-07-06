@@ -16,6 +16,8 @@ data/*.npz
 # Model checkpoints
 outputs/checkpoints/*.pt
 outputs/checkpoints/*.pth
+# ...but keep the released best checkpoint in the repo so the CPU quickstart works
+!outputs/checkpoints/best.pt
 
 # Python cache
 __pycache__/

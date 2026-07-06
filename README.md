@@ -12,12 +12,12 @@ and includes non-learned baselines and six ablation studies.
 
 | Metric | Model | Copy-input baseline | Meaning |
 |---|---|---|---|
-| IoU | **0.733** | 0.633 | Region overlap with the proxy target |
-| Precision | 0.783 | 0.970 | Correctness of predicted voxels |
-| Recall | **0.917** | 0.646 | Fraction of the target scene recovered |
-| F1 | **0.844** | 0.775 | Balance of precision and recall |
+| IoU | **0.726** | 0.633 | Region overlap with the proxy target |
+| Precision | 0.771 | 0.970 | Correctness of predicted voxels |
+| Recall | **0.923** | 0.646 | Fraction of the target scene recovered |
+| F1 | **0.839** | 0.775 | Balance of precision and recall |
 
-The model lifts **recall 0.65 → 0.92** and IoU **+0.085** over "copy the raw input", while a naive
+The model lifts **recall 0.65 → 0.92** and IoU **+0.076** over "copy the raw input", while a naive
 dilation baseline makes things *worse* — i.e. it genuinely **completes** the scene rather than copying
 it. See report §6.2 and `outputs/metrics/naive_baselines.json`.
 
@@ -36,10 +36,10 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-> **Note on training hardware.** The released checkpoint was trained on a Linux GPU box
-> (Ubuntu 22.04, RTX 4090, PyTorch + CUDA 12.8). Re-*training* from scratch is much faster on a GPU,
-> but everything needed to reproduce the reported numbers and figures works on Windows CPU using the
-> included checkpoint.
+> **Note on training hardware.** The checkpoint was trained from scratch on Windows 11 with an
+> NVIDIA RTX 4070 Laptop GPU (PyTorch 2.11 + CUDA 12.8). Re-*training* from scratch needs a GPU, but
+> evaluation, the demo, visualization, and all analysis reproduce on Windows CPU using the trained
+> checkpoint.
 
 ## 2. Dataset
 
