@@ -55,6 +55,64 @@ def build_specs(data_cfg: Dict) -> Tuple[CameraIntrinsics, VoxelSpec]:
     return camera, spec
 
 
+def cache_filename(nyu_index: int, input_key: str, target_key: str, grid_size: Sequence[int]) -> str:
+    """Name of the ``.npz`` cache entry for one scene.
+
+    Encoding the source keys and the grid size means different resolutions
+    (e.g. the 32/48/64 voxel ablations) never collide in the cache.
+    """
+    grid_tag = "x".join(map(str, grid_size))
+    return f"nyuv2_{nyu_index:04d}_{input_key}_to_{target_key}_{grid_tag}.npz"
+
+
+def cached_indices(cache_dir: Path, input_key: str, target_key: str, grid_size: Sequence[int]) -> List[int]:
+    """Scene indices that already have a cache entry, sorted ascending."""
+    if not cache_dir.is_dir():
+        return []
+    grid_tag = "x".join(map(str, grid_size))
+    suffix = f"_{input_key}_to_{target_key}_{grid_tag}.npz"
+    found: List[int] = []
+    for path in cache_dir.glob(f"nyuv2_*{suffix}"):
+        stem = path.name[len("nyuv2_"):-len(suffix)]
+        if stem.isdigit():
+            found.append(int(stem))
+    return sorted(found)
+
+
+def num_samples_from_cache(data_cfg: Dict) -> int:
+    """Infer the scene count from a complete voxel cache, without the ``.mat`` file.
+
+    Only trusted when the cache covers a contiguous range ``0..n-1``: the splits
+    are drawn from ``np.arange(num_samples)``, so a cache with holes would
+    silently produce a *different* train/val/test partition than the one the
+    checkpoint was trained on. A partial cache therefore raises rather than
+    guessing.
+    """
+    cache_dir = Path(data_cfg.get("cache_dir", ""))
+    _, spec = build_specs(data_cfg)
+    input_key = data_cfg.get("input_key", "rawDepths")
+    target_key = data_cfg.get("target_key", "depths")
+    indices = cached_indices(cache_dir, input_key, target_key, spec.grid_size)
+
+    hint = (
+        "Either download the real nyu_depth_v2_labeled.mat to the configured mat_path, "
+        "or restore a complete voxel cache (see data/README.md)."
+    )
+    if not indices:
+        raise FileNotFoundError(
+            f"No voxel cache found in {cache_dir} for "
+            f"'{input_key}' -> '{target_key}' at {spec.grid_size}, and the .mat file is missing.\n{hint}"
+        )
+    if indices != list(range(len(indices))):
+        missing = sorted(set(range(indices[-1] + 1)) - set(indices))
+        raise FileNotFoundError(
+            f"The voxel cache in {cache_dir} has gaps (missing scene indices: {missing[:10]}"
+            f"{', ...' if len(missing) > 10 else ''}). Splits are index-based, so an incomplete cache "
+            f"would not reproduce the recorded train/val/test partition.\n{hint}"
+        )
+    return len(indices)
+
+
 def make_splits(num_samples: int, train_ratio: float, val_ratio: float, seed: int) -> Dict[str, List[int]]:
     """Deterministically shuffle sample indices into train/val/test lists.
 
@@ -100,26 +158,26 @@ class NYUv2OccupancyDataset(Dataset):
             self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.seed = int(data_cfg.get("seed", 42))
 
-        with NYUv2MatFile(self.mat_path) as reader:
-            if not reader.has_key(self.target_key):
-                raise KeyError(f"Target key '{self.target_key}' not found in {self.mat_path}. Available keys: {reader.keys}")
-            if not reader.has_key(self.input_key):
-                raise KeyError(
-                    f"Input key '{self.input_key}' not found in {self.mat_path}. "
-                    "For this coursework prototype, use a real NYUv2 input source such as rawDepths."
-                )
+        # The .mat file is only opened for scenes that are not already cached. When every
+        # requested scene has a cache entry the dataset is fully usable without it, so the
+        # CPU quickstart runs from the shipped cache alone. Whenever the file *is* needed,
+        # validate both depth keys up front so a bad config fails immediately.
+        if any(not self._cache_file(i).exists() for i in self.indices):
+            with NYUv2MatFile(self.mat_path) as reader:
+                if not reader.has_key(self.target_key):
+                    raise KeyError(f"Target key '{self.target_key}' not found in {self.mat_path}. Available keys: {reader.keys}")
+                if not reader.has_key(self.input_key):
+                    raise KeyError(
+                        f"Input key '{self.input_key}' not found in {self.mat_path}. "
+                        "For this coursework prototype, use a real NYUv2 input source such as rawDepths."
+                    )
 
     def __len__(self) -> int:
         return len(self.indices)
 
     def _cache_file(self, nyu_index: int) -> Path:
-        """Cache path for one scene, keyed by scene index, source keys and grid size.
-
-        Encoding the grid size in the filename means different resolutions
-        (e.g. the 32/48/64 voxel ablations) never collide in the cache.
-        """
-        grid_tag = "x".join(map(str, self.spec.grid_size))
-        return self.cache_dir / f"nyuv2_{nyu_index:04d}_{self.input_key}_to_{self.target_key}_{grid_tag}.npz"
+        """Cache path for one scene, keyed by scene index, source keys and grid size."""
+        return self.cache_dir / cache_filename(nyu_index, self.input_key, self.target_key, self.spec.grid_size)
 
     def _depth_to_occ(self, depth: np.ndarray) -> np.ndarray:
         """Convert one depth map to an occupancy volume (project -> voxelize -> dilate)."""
@@ -193,13 +251,22 @@ class NYUv2OccupancyDataset(Dataset):
 
 
 def prepare_splits_from_config(mat_path: str | Path, data_cfg: Dict) -> Dict[str, List[int]]:
-    """Read the scene count from the ``.mat`` file and build the splits.
+    """Read the scene count and build the splits.
+
+    The count comes from the ``.mat`` file when it is present. When it is not,
+    it is recovered from a complete voxel cache (see :func:`num_samples_from_cache`)
+    so evaluation and the demo reproduce from the shipped cache alone. Both paths
+    feed the same deterministic :func:`make_splits`, so the partition is identical
+    either way.
 
     Honours the optional ``max_samples`` cap (used to run on a subset while
     developing) before delegating to :func:`make_splits`.
     """
-    with NYUv2MatFile(mat_path) as reader:
-        n = reader.num_samples(data_cfg.get("target_key", "depths"))
+    if Path(mat_path).exists():
+        with NYUv2MatFile(mat_path) as reader:
+            n = reader.num_samples(data_cfg.get("target_key", "depths"))
+    else:
+        n = num_samples_from_cache(data_cfg)
     max_samples = data_cfg.get("max_samples")
     if max_samples is not None:
         n = min(n, int(max_samples))

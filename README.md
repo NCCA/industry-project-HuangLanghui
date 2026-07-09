@@ -25,16 +25,20 @@ it. See report §6.2 and `outputs/metrics/naive_baselines.json`.
 
 ## 1. Environment (Windows)
 
-This project is set up to run on **Windows 11 / PowerShell**. A trained checkpoint
-(`outputs/checkpoints/best.pt`) is included, so evaluation, the demo, visualization, and all analysis
-run on **CPU** with no GPU required.
+This project is set up to run on **Windows 11 / PowerShell** with **Python 3.10+**. A trained
+checkpoint (`outputs/checkpoints/best.pt`) is included, so evaluation, the demo, visualization, and
+all analysis run on **CPU** with no GPU required.
+
+From the folder containing this README:
 
 ```powershell
-cd D:\nyuv2-scene-completion\nyuv2-scene-completion1
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+On Windows the default package index serves CPU builds of PyTorch, so no CUDA install is needed to
+reproduce the results below.
 
 > **Note on training hardware.** The checkpoint was trained from scratch on Windows 11 with an
 > NVIDIA RTX 4070 Laptop GPU (PyTorch 2.11 + CUDA 12.8). Re-*training* from scratch needs a GPU, but
@@ -43,7 +47,14 @@ pip install -r requirements.txt
 
 ## 2. Dataset
 
-Download the official NYUv2 labeled dataset and place the `.mat` file here:
+**The quickstart in §3 needs no download.** Every NYUv2 scene has already been projected and
+voxelized, and those `64x64x64` occupancy grids ship in `data/cache_64/` (see `data/README.md`), so
+evaluation, the baselines, the demo and the visualizations reproduce straight from the cache.
+
+Download the official NYUv2 labeled dataset only for the parts that need the raw pixels rather than
+the cached voxels: `scripts/inspect_data.py`, the point-resolution / voxel-resolution /
+label-assisted ablations, and therefore `scripts/run_custom_ablation_study.py`, which runs all six.
+Place the `.mat` file here:
 
 ```text
 data\nyu_depth_v2_labeled.mat
@@ -52,11 +63,14 @@ data\nyu_depth_v2_labeled.mat
 Source: https://cs.nyu.edu/~fergus/datasets/nyu_depth_v2.html
 
 The file provides RGB, raw depth (`rawDepths`, incomplete input source), in-painted depth (`depths`,
-proxy target source), and 2D labels (used only in the semantic-prior analysis).
+proxy target source), and 2D labels (used only in the semantic-prior analysis). The cached grids were
+built from it; nothing in this project fabricates synthetic depth.
 
-## 3. Quickstart — reproduce the results (CPU, uses the included checkpoint)
+## 3. Quickstart — reproduce the results (CPU, no dataset download)
 
-Run these four commands to regenerate the headline evidence.
+Run these four commands to regenerate the headline evidence. They use the included checkpoint and
+the cached voxel grids, so they need neither a GPU nor the `.mat` file. Step (b) reproduces the
+test-set numbers in the table above exactly.
 
 ```powershell
 # (a) One-command completion demo: per-scene table + input|prediction|target figures + error maps
@@ -76,6 +90,9 @@ python visualize.py --config configs\full_train.yaml --checkpoint outputs\checkp
 Outputs land in `outputs\demo\`, `outputs\metrics\`, and `outputs\visualizations\`.
 
 ## 4. Full pipeline (optional — retrain and regenerate everything)
+
+Steps 1 and 5 read the raw NYUv2 pixels and labels, so they need `data\nyu_depth_v2_labeled.mat`
+(§2). Steps 2–4 run from the cached voxel grids.
 
 ```powershell
 # 1. Sanity-check the dataset can be read (writes a depth preview PNG)
