@@ -30,6 +30,10 @@ re-voxelize the whole dataset:
 Cache files are named `nyuv2_<index>_<input_key>_to_<target_key>_<grid>.npz`, so different source
 keys and grid resolutions never collide.
 
-The caches are a convenience, not a dependency: deleting any of them is safe, and the missing
-entries are regenerated from `nyu_depth_v2_labeled.mat` on the next run. They are listed in
-`.gitignore`, so a fresh `git clone` starts without them and rebuilds them on first use.
+`cache_64/` is committed to the repository so a fresh `git clone` reproduces the reported results on
+CPU without downloading anything. The three ablation caches are not: they cover a subset of scenes,
+and the splits are index-based, so a partial cache cannot reconstruct the recorded partition. The
+scripts that need them rebuild them from the `.mat` file.
+
+The caches are a convenience, not a dependency: deleting any of them is safe, and the missing entries
+are regenerated from `nyu_depth_v2_labeled.mat` on the next run.
