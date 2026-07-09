@@ -1,0 +1,31 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+data/*.mat
+data/cache_*/
+outputs/checkpoints/*.pt
+outputs/metrics/*.json
+outputs/visualizations/*.png
+# Dataset files
+data/*.mat
+data/*.h5
+data/*.hdf5
+data/*.npz
+
+# ...but ship the complete 64x64x64 voxel cache, so a fresh clone reproduces the
+# reported results on CPU without the 2.8 GB .mat download. The ablation caches
+# (data/cache_64_grid_*/) stay out: they cover a subset of scenes and cannot
+# reconstruct the index-based splits on their own.
+!data/cache_64/
+!data/cache_64/*.npz
+
+# Model checkpoints
+outputs/checkpoints/*.pt
+outputs/checkpoints/*.pth
+# ...but keep the released best checkpoint in the repo so the CPU quickstart works
+!outputs/checkpoints/best.pt
+
+# Python cache
+__pycache__/
+*.pyc

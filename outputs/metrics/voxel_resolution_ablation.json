@@ -1,0 +1,61 @@
+{
+  "split": "test",
+  "checkpoint": "outputs\\checkpoints\\best.pt",
+  "threshold": 0.5,
+  "results": [
+    {
+      "name": "32x32x32",
+      "grid_size": [
+        32,
+        32,
+        32
+      ],
+      "iou": 0.7228969950858529,
+      "precision": 0.7528988116672494,
+      "recall": 0.9477566108475528,
+      "f1": 0.8391644920120426,
+      "tp": 324074,
+      "fp": 106361,
+      "fn": 17864,
+      "loss": 0.21775664419752278,
+      "num_samples": 146,
+      "note": "Inference-time voxel representation ablation using the same trained convolutional checkpoint."
+    },
+    {
+      "name": "48x48x48",
+      "grid_size": [
+        48,
+        48,
+        48
+      ],
+      "iou": 0.7344931503585816,
+      "precision": 0.7970437341217242,
+      "recall": 0.9034674104443099,
+      "f1": 0.8469253924554062,
+      "tp": 678289,
+      "fp": 172717,
+      "fn": 72473,
+      "loss": 0.22343348801033955,
+      "num_samples": 146,
+      "note": "Inference-time voxel representation ablation using the same trained convolutional checkpoint."
+    },
+    {
+      "name": "64x64x64",
+      "grid_size": [
+        64,
+        64,
+        64
+      ],
+      "iou": 0.7092545661623919,
+      "precision": 0.7552785431214587,
+      "recall": 0.9208814061123264,
+      "f1": 0.8298992741887222,
+      "tp": 1189427,
+      "fp": 385392,
+      "fn": 102191,
+      "loss": 0.1669917658405149,
+      "num_samples": 146,
+      "note": "Inference-time voxel representation ablation using the same trained convolutional checkpoint."
+    }
+  ]
+}

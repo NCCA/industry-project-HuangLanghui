@@ -1,0 +1,14 @@
+numpy>=1.24
+scipy>=1.10
+h5py>=3.8
+PyYAML>=6.0
+tqdm>=4.65
+matplotlib>=3.7
+scikit-image>=0.21
+torch>=2.0
+
+# Report export (scripts/build_report.py, scripts/md_to_docx.py)
+markdown>=3.4
+xhtml2pdf>=0.2.11   # direct HTML -> PDF (otherwise use the browser's Print -> Save as PDF)
+python-docx>=1.1    # markdown -> Word (.docx)
+pypdf>=4.0          # set clean PDF document properties (author) after export
